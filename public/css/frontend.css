@@ -15,6 +15,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { font-family: 'Poppins', sans-serif; color: var(--realblack); overflow-x: hidden; }
+img { max-width: 100%; height: auto; }
+body.nav-menu-open {
+    overflow: hidden;
+}
 
 /* Scroll reveal animation (used across public pages) */
 .reveal-on-scroll {
@@ -196,32 +200,42 @@ body { font-family: 'Poppins', sans-serif; color: var(--realblack); overflow-x: 
     }
 }
 
-/* Navbar */
+/* Navbar + mobile menu */
+.navbar-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    z-index: 1000;
+    overflow-x: hidden;
+}
 .navbar {
     position: sticky;
     top: 0;
-    z-index: 999;
+    z-index: 1001;
     width: 100%;
     max-width: 1240px;
     margin: 0 auto;
-    padding: 0 clamp(18px, 3vw, 36px);
+    padding: 0 clamp(14px, 3vw, 36px);
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
     align-items: center;
-    column-gap: clamp(12px, 3vw, 28px);
+    column-gap: 12px;
+    row-gap: 0;
     background: #ffffff;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.8) inset,
         0 8px 28px rgba(0, 0, 0, 0.06);
-    min-height: 80px;
+    min-height: 72px;
 }
 .navbar-logo {
-    justify-self: start;
+    grid-column: 1;
+    grid-row: 1;
     width: auto;
     min-width: 120px;
-    max-width: 200px;
-    height: 54px;
+    max-width: min(200px, 52vw);
+    height: 52px;
     display: flex;
     align-items: center;
     flex-shrink: 0;
@@ -231,8 +245,68 @@ body { font-family: 'Poppins', sans-serif; color: var(--realblack); overflow-x: 
     max-height: 100%;
     object-fit: contain;
 }
+.navbar-toggle {
+    grid-column: 2;
+    grid-row: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    color: var(--secondary);
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.navbar-toggle:hover {
+    background: rgba(138, 29, 3, 0.08);
+    border-color: rgba(138, 29, 3, 0.35);
+    color: var(--primary);
+}
+.navbar-toggle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+.navbar-toggle-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 22px;
+    height: 18px;
+}
+.navbar-toggle-bar {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: currentColor;
+    border-radius: 1px;
+    transition: transform 0.25s ease, opacity 0.2s ease;
+}
+.navbar--open .navbar-toggle-bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.navbar--open .navbar-toggle-bar:nth-child(2) {
+    opacity: 0;
+}
+.navbar--open .navbar-toggle-bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+.navbar-menu {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 0 0 8px;
+    min-width: 0;
+}
 .navbar-links {
-    justify-self: center;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -240,9 +314,10 @@ body { font-family: 'Poppins', sans-serif; color: var(--realblack); overflow-x: 
     gap: 4px;
     margin: 0;
     padding: 0 8px;
+    flex: 1;
+    min-width: 0;
 }
 .navbar-right {
-    justify-self: end;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -312,19 +387,99 @@ body { font-family: 'Poppins', sans-serif; color: var(--realblack); overflow-x: 
     background: var(--secondary);
     color: var(--primary);
 }
-@media (max-width: 991px) {
-    .nav-link-login {
-        display: none;
-    }
+
+/* Desktop: single row — logo | menu | (toggle hidden) */
+@media (min-width: 992px) {
     .navbar {
-        padding: 0 20px;
-        min-height: 70px;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto;
+        min-height: 80px;
+        padding-bottom: 0;
+    }
+    .navbar-logo {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .navbar-toggle {
+        display: none !important;
+    }
+    .navbar-menu {
+        grid-column: 2;
+        grid-row: 1;
+        padding: 0;
+        border-left: none;
+    }
+    .navbar-backdrop {
+        display: none !important;
+    }
+}
+
+/* Tablet / phone: collapsible menu */
+@media (max-width: 991px) {
+    .navbar {
+        grid-template-columns: 1fr auto;
+        padding-bottom: 0;
+    }
+    .navbar-toggle {
+        display: inline-flex;
+    }
+    .navbar-menu {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0;
+        margin: 0 max(-14px, -3vw) 0;
+        max-height: calc(100vh - 72px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        background: #fff;
+    }
+    .navbar.navbar--open .navbar-menu {
+        display: flex;
+    }
+    .navbar-links {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px 16px 8px;
+        gap: 2px;
     }
     .navbar-links .nav-link {
-        display: none;
-    }
-    .navbar-links .nav-link.mobile-show {
         display: block;
+        width: 100%;
+        text-align: left;
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+    .navbar-right {
+        padding: 8px 16px 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .nav-link-login {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+.navbar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.45);
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+.navbar-backdrop[hidden] {
+    display: none !important;
+}
+@media (min-width: 992px) {
+    .navbar-backdrop {
+        display: none !important;
     }
 }
 

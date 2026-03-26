@@ -81,31 +81,43 @@
             </div>
         </div>
 
-        {{-- Navbar --}}
-        <nav class="navbar">
-            <a href="{{ route('home') }}" class="navbar-logo" wire:navigate>
-                @if($websiteSettings->logo_path ?? null)
-                    <img src="{{ asset($websiteSettings->logo_path) }}" alt="{{ $websiteSettings->company_name ?? 'Logo' }}">
-                @else
-                    <span style="font-weight:700;color:var(--primary);">{{ $websiteSettings->company_name ?? config('app.name') }}</span>
-                @endif
-            </a>
-
-            <div class="navbar-links">
-                <a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" wire:navigate>Home</a>
-                <a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" wire:navigate>About</a>
-                <a href="{{ route('public.services') }}" class="nav-link {{ request()->routeIs('public.services') ? 'active' : '' }}" wire:navigate>Our Services</a>
-                <a href="{{ route('space-to-let') }}" class="nav-link {{ request()->routeIs('space-to-let') ? 'active' : '' }}" wire:navigate>Space to Let</a>
-                <a href="{{ route('updates') }}" class="nav-link {{ request()->routeIs('updates') ? 'active' : '' }}" wire:navigate>Updates</a>
-                <a href="{{ route('contact') }}" class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" wire:navigate>Contact</a>
-            </div>
-
-            <div class="navbar-right">
-                <a href="{{ route('login') }}" class="nav-link nav-link-login {{ request()->routeIs('login') ? 'active' : '' }}" wire:navigate>
-                    Login
+        {{-- Navbar (hamburger menu on small screens) --}}
+        <div class="navbar-wrap">
+            <nav class="navbar" id="site-navbar" aria-label="Main navigation">
+                <a href="{{ route('home') }}" class="navbar-logo" wire:navigate>
+                    @if($websiteSettings->logo_path ?? null)
+                        <img src="{{ asset($websiteSettings->logo_path) }}" alt="{{ $websiteSettings->company_name ?? 'Logo' }}">
+                    @else
+                        <span style="font-weight:700;color:var(--primary);">{{ $websiteSettings->company_name ?? config('app.name') }}</span>
+                    @endif
                 </a>
-            </div>
-        </nav>
+
+                <div class="navbar-menu" id="primary-navigation">
+                    <div class="navbar-links">
+                        <a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" wire:navigate>Home</a>
+                        <a href="{{ route('about') }}" class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" wire:navigate>About</a>
+                        <a href="{{ route('public.services') }}" class="nav-link {{ request()->routeIs('public.services') ? 'active' : '' }}" wire:navigate>Our Services</a>
+                        <a href="{{ route('space-to-let') }}" class="nav-link {{ request()->routeIs('space-to-let') ? 'active' : '' }}" wire:navigate>Space to Let</a>
+                        <a href="{{ route('updates') }}" class="nav-link {{ request()->routeIs('updates') ? 'active' : '' }}" wire:navigate>Updates</a>
+                        <a href="{{ route('contact') }}" class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" wire:navigate>Contact</a>
+                    </div>
+                    <div class="navbar-right">
+                        <a href="{{ route('login') }}" class="nav-link nav-link-login {{ request()->routeIs('login') ? 'active' : '' }}" wire:navigate>
+                            Login
+                        </a>
+                    </div>
+                </div>
+
+                <button type="button" class="navbar-toggle" id="navbar-toggle" aria-controls="primary-navigation" aria-expanded="false" aria-label="Open menu">
+                    <span class="navbar-toggle-box" aria-hidden="true">
+                        <span class="navbar-toggle-bar"></span>
+                        <span class="navbar-toggle-bar"></span>
+                        <span class="navbar-toggle-bar"></span>
+                    </span>
+                </button>
+            </nav>
+            <div class="navbar-backdrop" id="navbar-backdrop" hidden aria-hidden="true"></div>
+        </div>
 
         {{-- Main content (Livewire slot) --}}
         <main class="main-content">
@@ -207,6 +219,67 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @livewireScripts
     @stack('scripts')
+
+    <script>
+        (function () {
+            var nav = document.getElementById('site-navbar');
+            var toggle = document.getElementById('navbar-toggle');
+            var backdrop = document.getElementById('navbar-backdrop');
+            if (!nav || !toggle) return;
+
+            function isMobileNav() {
+                return window.matchMedia('(max-width: 991px)').matches;
+            }
+
+            function setOpen(open) {
+                nav.classList.toggle('navbar--open', open);
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+                if (backdrop) {
+                    if (open && isMobileNav()) {
+                        backdrop.removeAttribute('hidden');
+                        backdrop.setAttribute('aria-hidden', 'false');
+                    } else {
+                        backdrop.setAttribute('hidden', '');
+                        backdrop.setAttribute('aria-hidden', 'true');
+                    }
+                }
+                if (open && isMobileNav()) {
+                    document.body.classList.add('nav-menu-open');
+                } else {
+                    document.body.classList.remove('nav-menu-open');
+                }
+            }
+
+            function closeMenu() {
+                setOpen(false);
+            }
+
+            toggle.addEventListener('click', function () {
+                setOpen(!nav.classList.contains('navbar--open'));
+            });
+
+            if (backdrop) {
+                backdrop.addEventListener('click', closeMenu);
+            }
+
+            nav.querySelectorAll('.navbar-menu a').forEach(function (a) {
+                a.addEventListener('click', closeMenu);
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 992) {
+                    closeMenu();
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeMenu();
+            });
+
+            document.addEventListener('livewire:navigated', closeMenu);
+        })();
+    </script>
 
     <script>
         (function () {
