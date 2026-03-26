@@ -111,6 +111,9 @@
             {{ $slot ?? '' }}
         </main>
 
+        {{-- Trusted partners strip (above footer on every page) --}}
+        <livewire:frontend.partners-strip />
+
         {{-- Footer --}}
         <footer class="footer">
             <div class="footer-grid">

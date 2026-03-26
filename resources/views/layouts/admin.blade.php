@@ -143,6 +143,9 @@
                     <a href="{{ route('admin.team.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.team.*') ? 'active' : '' }}">
                         <i class="fa fa-users me-2"></i>Team
                     </a>
+                    <a href="{{ route('admin.partners.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.partners.*') ? 'active' : '' }}">
+                        <i class="fa fa-handshake me-2"></i>Trusted Partners
+                    </a>
 
                     {{-- People --}}
                     <a href="{{ route('admin.users.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">

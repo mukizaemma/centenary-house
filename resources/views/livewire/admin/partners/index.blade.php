@@ -1,9 +1,9 @@
-@section('title', 'Hospital Partners')
+@section('title', 'Trusted Partners')
 
 <div>
     <div class="bg-light rounded p-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
-            <h4 class="mb-2">Partners</h4>
+            <h4 class="mb-2">Trusted Partners</h4>
             <div class="d-flex flex-wrap gap-2">
                 <input
                     type="text"
@@ -99,7 +99,7 @@
                     <div class="modal-body">
                         <form wire:submit.prevent="save" id="partner-form">
                             <div class="mb-3">
-                                <label class="form-label">Name</label>
+                                <label class="form-label">Company</label>
                                 <input type="text" class="form-control" wire:model.defer="name">
                                 @error('name') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
@@ -122,26 +122,9 @@
                                 @error('website_url') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Description</label>
+                                <label class="form-label">Services description (optional)</label>
                                 <textarea class="form-control summernote" wire:model.defer="description" rows="3"></textarea>
                                 @error('description') <small class="text-danger">{{ $message }}</small> @enderror
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Contact Person</label>
-                                    <input type="text" class="form-control" wire:model.defer="contact_person">
-                                    @error('contact_person') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Contact Email</label>
-                                    <input type="email" class="form-control" wire:model.defer="contact_email">
-                                    @error('contact_email') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Contact Phone</label>
-                                    <input type="text" class="form-control" wire:model.defer="contact_phone">
-                                    @error('contact_phone') <small class="text-danger">{{ $message }}</small> @enderror
-                                </div>
                             </div>
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" wire:model.defer="is_active">

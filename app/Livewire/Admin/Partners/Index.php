@@ -21,9 +21,6 @@ class Index extends Component
     public ?string $logo_path = null;
     public ?string $website_url = null;
     public ?string $description = null;
-    public ?string $contact_person = null;
-    public ?string $contact_email = null;
-    public ?string $contact_phone = null;
     public bool $is_active = true;
 
     protected function rules(): array
@@ -34,9 +31,6 @@ class Index extends Component
             'logo' => $logoRule,
             'website_url' => ['nullable', 'url', 'max:255'],
             'description' => ['nullable', 'string'],
-            'contact_person' => ['nullable', 'string', 'max:255'],
-            'contact_email' => ['nullable', 'email', 'max:255'],
-            'contact_phone' => ['nullable', 'string', 'max:50'],
             'is_active' => ['boolean'],
         ];
     }
@@ -69,9 +63,6 @@ class Index extends Component
         $this->logo = null;
         $this->website_url = $p->website_url ?? '';
         $this->description = $p->description ?? '';
-        $this->contact_person = $p->contact_person ?? '';
-        $this->contact_email = $p->contact_email ?? '';
-        $this->contact_phone = $p->contact_phone ?? '';
         $this->is_active = $p->is_active;
         $this->showFormModal = true;
     }
@@ -83,9 +74,6 @@ class Index extends Component
             'name' => $data['name'],
             'website_url' => $data['website_url'] ?: null,
             'description' => $data['description'] ?: null,
-            'contact_person' => $data['contact_person'] ?: null,
-            'contact_email' => $data['contact_email'] ?: null,
-            'contact_phone' => $data['contact_phone'] ?: null,
             'is_active' => $data['is_active'],
         ];
         if ($this->logo) {
@@ -132,9 +120,6 @@ class Index extends Component
         $this->logo_path = null;
         $this->website_url = null;
         $this->description = null;
-        $this->contact_person = null;
-        $this->contact_email = null;
-        $this->contact_phone = null;
         $this->is_active = true;
         $this->resetValidation();
     }
@@ -143,8 +128,7 @@ class Index extends Component
     {
         return Partner::query()
             ->when($this->search, fn($q) => $q->where('name', 'like', '%' . $this->search . '%')
-                ->orWhere('contact_person', 'like', '%' . $this->search . '%')
-                ->orWhere('contact_email', 'like', '%' . $this->search . '%'))
+            )
             ->orderBy('name')
             ->paginate(10);
     }

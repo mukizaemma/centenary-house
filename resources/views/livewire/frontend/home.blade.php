@@ -93,8 +93,11 @@
             </section>
         @endif
 
-        {{-- Services section (featured + list, first item larger) --}}
+        {{-- Services section (first 3 items in background-image card format) --}}
         @if(isset($services) && $services->count())
+            @php
+                $homeServices = $services->take(3);
+            @endphp
             <section class="home-services">
                 <div class="section-header">
                     <span class="about-label">OUR SERVICES</span>
@@ -106,70 +109,43 @@
                     </p>
                 </div>
 
-                @php
-                    $primaryService = $services->first();
-                    $otherServices = $services->slice(1, 3);
-                @endphp
-
-                @if($primaryService)
-                    <div class="home-services-layout">
-                        {{-- Featured (first) service - large card on the left --}}
-                        <article class="service-card service-card--featured">
-                            <div class="service-card__cover">
-                                @if($primaryService->cover_image)
-                                    <img src="{{ asset($primaryService->cover_image) }}" alt="{{ $primaryService->title }}">
-                                @else
-                                    <div class="service-card__cover-placeholder"></div>
-                                @endif
-                            </div>
-                            <div class="service-card__body">
-                                <h3 class="service-card__title">{{ $primaryService->title }}</h3>
+                <div class="services-carousel-edge">
+                    <div class="services-carousel swiper services-carousel--home">
+                        <div class="swiper-wrapper">
+                            @foreach($homeServices as $service)
                                 @php
-                                    $primarySummary = \Illuminate\Support\Str::limit(strip_tags($primaryService->description ?? ''), 220);
+                                    $serviceSummary = \Illuminate\Support\Str::limit(strip_tags($service->description ?? ''), 110);
                                 @endphp
-                                @if($primarySummary)
-                                    <p class="service-card__excerpt">{{ $primarySummary }}</p>
-                                @endif
-                                <a href="{{ route('public.services.show', $primaryService->slug) }}"
-                                   wire:navigate
-                                   class="btn-primary service-card__button">
-                                    View more
-                                </a>
-                            </div>
-                        </article>
+                                <div class="swiper-slide">
+                                    <article
+                                        class="service-card services-bg-card {{ $service->cover_image ? '' : 'services-bg-card--no-image' }}"
+                                        @if($service->cover_image)
+                                            style="background-image: url('{{ asset($service->cover_image) }}');"
+                                        @endif
+                                    >
+                                        <div class="services-bg-card__content">
+                                            <h3 class="services-bg-card__title">{{ $service->title }}</h3>
 
-                        {{-- Other services stacked on the right --}}
-                        @if($otherServices->count())
-                            <div class="home-services-side">
-                                @foreach($otherServices as $service)
-                                    <article class="service-card service-card--compact">
-                                        <div class="service-card__cover">
-                                            @if($service->cover_image)
-                                                <img src="{{ asset($service->cover_image) }}" alt="{{ $service->title }}">
-                                            @else
-                                                <div class="service-card__cover-placeholder"></div>
-                                            @endif
-                                        </div>
-                                        <div class="service-card__body service-card__body--compact">
-                                            <h3 class="service-card__title">{{ $service->title }}</h3>
-                                            @php
-                                                $serviceSummary = \Illuminate\Support\Str::limit(strip_tags($service->description ?? ''), 120);
-                                            @endphp
                                             @if($serviceSummary)
-                                                <p class="service-card__excerpt service-card__excerpt--compact">{{ $serviceSummary }}</p>
+                                                <p class="services-bg-card__excerpt">{{ $serviceSummary }}</p>
                                             @endif
+
                                             <a href="{{ route('public.services.show', $service->slug) }}"
                                                wire:navigate
-                                               class="btn-primary service-card__button">
+                                               class="btn-primary services-bg-card__button">
                                                 View more
                                             </a>
                                         </div>
                                     </article>
-                                @endforeach
-                            </div>
-                        @endif
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="swiper-button-prev services-carousel__btn services-carousel__btn--prev"></div>
+                        <div class="swiper-button-next services-carousel__btn services-carousel__btn--next"></div>
+                        <div class="swiper-pagination services-carousel__pagination"></div>
                     </div>
-                @endif
+                </div>
 
                 <div class="section-footer-link">
                     <a href="{{ route('public.services') }}" wire:navigate class="link-underlined">
@@ -437,84 +413,159 @@
 .link-underlined { font-size: 0.88rem; color: var(--primary); text-decoration: none; font-weight: 500; }
 .link-underlined:hover { text-decoration: underline; }
 
-/* Services grid (3 items per row on large screens) */
+/* Services cards (background-image cover) - stacked rows */
 .home-services {
     margin: 10px 0 36px;
-    padding: 26px 24px 30px;
+        padding: 26px 0 30px;
     background: #f2f0f1; /* subtle darkish background so page is not all white */
-    border-radius: 16px;
+        border-radius: 0;
+        width: 100vw;
+        margin-left: 50%;
+        transform: translateX(-50%);
 }
-.home-services-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.1fr);
-    gap: 22px;
-    align-items: stretch;
-}
-.home-services-side {
+
+.home-services-list {
+    margin-top: 6px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 22px; /* spacing between rows */
 }
-.service-card {
-    background: #ffffff;
-    border-radius: 12px;
+
+.services-bg-card {
+    position: relative;
+    border-radius: 0;
     overflow: hidden;
+    width: 100%;
+    min-height: 100vh;
+    height: 100vh;
+    background: #e9e9e9;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     box-shadow: 0 0 18px -4px rgba(0,0,0,0.12);
+}
+
+.services-bg-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.05) 100%);
+}
+
+.services-bg-card--no-image {
+    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+}
+
+.services-bg-card__content {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;
-}
-.service-card__cover { height: 230px; background: #f5f5f5; overflow: hidden; }
-.service-card__cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; display: block; }
-.service-card:hover .service-card__cover img { transform: scale(1.05); }
-.service-card__cover-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg,#f5f5f5,#e0e0e0); }
-.service-card__body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-.service-card__title { font-size: 1rem; font-weight: 600; margin: 0; color: var(--realblack); }
-.service-card__excerpt { font-size: 0.9rem; color: #555555; line-height: 1.6; margin: 2px 0 0; }
-.service-card__button { margin-top: 10px; align-self: flex-start; }
-
-/* Taller image for featured service on the left */
-.service-card--featured .service-card__cover {
-    height: 320px;
+    justify-content: flex-end;
+    align-items: center;
+    text-align: center;
+    padding: 26px 22px 32px;
+    gap: 10px;
+    color: #ffffff;
 }
 
-/* Compact service cards on the right column */
-.service-card--compact {
-    flex-direction: row;
-}
-.service-card--compact .service-card__cover {
-    flex: 0 0 38%;
-    height: auto;
-}
-.service-card--compact .service-card__body {
-    padding: 12px 16px;
-    gap: 6px;
-}
-.service-card__body--compact {
-    justify-content: center;
-}
-.service-card__excerpt--compact {
-    font-size: 0.85rem;
+.services-bg-card__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 650;
 }
 
-@media (max-width: 992px) {
-    .home-services-layout {
-        grid-template-columns: 1fr;
-    }
+.services-bg-card__excerpt {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.88);
+    line-height: 1.6;
+}
 
-    .service-card--compact {
-        flex-direction: row;
-    }
+.services-bg-card__button {
+    margin-top: 6px;
+    align-self: center;
+}
+
+.services-bg-card .btn-primary {
+    /* Ensure button is readable on the dark overlay */
+    background: rgba(255,255,255,0.94) !important;
+    color: #111 !important;
+    border: none !important;
+}
+
+.services-bg-card .btn-primary:hover {
+    background: rgba(255,255,255,1) !important;
 }
 
 @media (max-width: 600px) {
     .home-services {
-        padding: 20px 18px 24px;
+        padding: 20px 0 24px;
     }
+    .home-services-list { gap: 18px; }
+    .services-bg-card {
+        min-height: 60vh;
+        height: 60vh;
+    }
+    .services-bg-card__content {
+        padding: 18px 16px;
+        gap: 8px;
+    }
+}
 
-    .service-card--compact {
-        flex-direction: row;
-    }
+/* Services carousel (edge-to-edge) */
+.services-carousel-edge {
+    width: 100%;
+    margin-left: 0;
+    transform: none;
+}
+
+.services-carousel {
+    width: 100%;
+}
+
+.services-carousel {
+    position: relative;
+}
+
+.services-carousel .swiper-wrapper {
+    width: 100%;
+}
+
+.services-carousel .swiper-slide {
+    width: 100% !important;
+    display: flex;
+}
+
+.services-carousel__btn {
+    color: #fff;
+}
+
+.services-carousel__pagination .swiper-pagination-bullet {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.services-carousel__pagination .swiper-pagination-bullet-active {
+    background: #ffffff;
+}
+
+.services-carousel__pagination {
+    position: absolute;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+}
+
+.services-carousel__pagination .swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    margin: 0 6px !important;
+    opacity: 1;
 }
 
 /* Spaces / rooms */
@@ -763,4 +814,48 @@
 .text-center { text-align: center; }
 .mt-4 { margin-top: 24px; }
     </style>
+
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('assets/css/swiper-bundle.min.css') }}">
+    @endpush
+
+    @push('scripts')
+        <script src="{{ asset('assets/js/swiper-bundle.min.js') }}"></script>
+        <script>
+            (function () {
+                function initServicesHomeCarousel() {
+                    const el = document.querySelector(".services-carousel--home");
+                    if (!el || !window.Swiper) return;
+                    if (el.dataset.inited === "1") return;
+                    el.dataset.inited = "1";
+
+                    const slidesCount = el.querySelectorAll(".swiper-slide").length;
+                    new Swiper(el, {
+                        slidesPerView: 1,
+                        spaceBetween: 0,
+                        loop: slidesCount > 1,
+                        speed: 800,
+                        navigation: {
+                            nextEl: el.querySelector(".services-carousel__btn--next"),
+                            prevEl: el.querySelector(".services-carousel__btn--prev"),
+                        },
+                        pagination: {
+                            el: el.querySelector(".services-carousel__pagination"),
+                            clickable: true,
+                        },
+                    });
+                }
+
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", initServicesHomeCarousel);
+                } else {
+                    initServicesHomeCarousel();
+                }
+
+                if (window.Livewire && typeof window.Livewire.hook === "function") {
+                    window.Livewire.hook("message.processed", initServicesHomeCarousel);
+                }
+            })();
+        </script>
+    @endpush
 </div>
