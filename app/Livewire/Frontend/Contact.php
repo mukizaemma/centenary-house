@@ -7,6 +7,7 @@ use App\Mail\ContactFormSubmitted;
 use App\Models\ContactMessage;
 use App\Models\PageHeader;
 use App\Models\WebsiteSetting;
+use App\Support\SafeMail;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -16,11 +17,20 @@ class Contact extends Component
     #[Layout('layouts.frontend')]
 
     public string $first_name = '';
+
     public string $last_name = '';
+
     public string $phone = '';
+
     public string $email = '';
+
     public string $subject = '';
+
     public string $message = '';
+
+    public bool $visiting_space = false;
+
+    public string $visit_time_preference = '';
 
     protected function rules(): array
     {
@@ -31,6 +41,8 @@ class Contact extends Component
             'email' => ['required', 'email:rfc,dns', 'max:255'],
             'subject' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'min:10'],
+            'visiting_space' => ['boolean'],
+            'visit_time_preference' => ['nullable', 'string', 'max:255', 'required_if:visiting_space,true'],
         ];
     }
 
@@ -38,10 +50,13 @@ class Contact extends Component
     {
         $this->validate();
 
+        if (! $this->visiting_space) {
+            $this->visit_time_preference = '';
+        }
+
         $settings = WebsiteSetting::first();
         $adminEmail = $settings?->email;
 
-        // Store in database
         ContactMessage::create([
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
@@ -49,31 +64,36 @@ class Contact extends Component
             'email' => $this->email,
             'subject' => $this->subject ?: null,
             'message' => $this->message,
+            'visiting_space' => $this->visiting_space,
+            'visit_time_preference' => $this->visiting_space ? ($this->visit_time_preference ?: null) : null,
         ]);
 
-        // Send to admin
+        $mailOk = true;
         if ($adminEmail) {
-            Mail::to($adminEmail)->send(new ContactFormSubmitted(
+            $mailOk = SafeMail::send(fn () => Mail::to($adminEmail)->send(new ContactFormSubmitted(
                 first_name: $this->first_name,
                 last_name: $this->last_name,
                 email: $this->email,
                 phone: $this->phone ?: null,
-                subject: $this->subject ?: null,
-                message: $this->message,
-            ));
+                formSubject: $this->subject ?: null,
+                messageBody: $this->message,
+                visiting_space: $this->visiting_space,
+                visit_time_preference: $this->visiting_space ? ($this->visit_time_preference ?: null) : null,
+            ))) && $mailOk;
         }
 
-        // Send copy to user
-        Mail::to($this->email)->send(new ContactFormConfirmation(
+        $mailOk = SafeMail::send(fn () => Mail::to($this->email)->send(new ContactFormConfirmation(
             first_name: $this->first_name,
             email: $this->email,
-            message: $this->message,
-        ));
+            messageBody: $this->message,
+        ))) && $mailOk;
 
-        $message = 'Thank you! Your message has been sent. We will get back to you soon.';
-        session()->flash('contact_success', $message);
-        $this->dispatch('notify', type: 'success', title: 'Message sent', message: $message);
-        $this->reset('first_name', 'last_name', 'phone', 'email', 'subject', 'message');
+        $flash = $mailOk
+            ? 'Thank you! Your message has been sent. We will get back to you soon.'
+            : SafeMail::receivedButNotificationFailed();
+        session()->flash('contact_success', $flash);
+        $this->dispatch('notify', type: $mailOk ? 'success' : 'warning', title: $mailOk ? 'Message sent' : 'Message received', message: $flash);
+        $this->reset('first_name', 'last_name', 'phone', 'email', 'subject', 'message', 'visiting_space', 'visit_time_preference');
     }
 
     public function render()

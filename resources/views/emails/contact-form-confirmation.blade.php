@@ -17,7 +17,7 @@
     <p>We have received your message and will get back to you as soon as possible.</p>
 
     <p><strong>Here is a copy of your message:</strong></p>
-    <div class="message-box">{{ nl2br(e($message)) }}</div>
+    <div class="message-box">{{ nl2br(e($messageBody)) }}</div>
 
     <div class="footer">
         <p>Best regards,<br>{{ config('app.name') }}</p>

@@ -22,6 +22,7 @@ class Index extends Component
     public function render()
     {
         $query = ContactMessage::query()
+            ->with('service')
             ->orderByDesc('created_at');
 
         if ($this->search) {

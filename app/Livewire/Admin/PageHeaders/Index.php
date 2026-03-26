@@ -22,6 +22,7 @@ class Index extends Component
         'about' => 'About',
         'services' => 'Services',
         'space-to-let' => 'Space to Let',
+        'book-tour' => 'Book a tour visit',
         'updates' => 'Updates',
         'contact' => 'Contact',
         // Legacy / optional pages

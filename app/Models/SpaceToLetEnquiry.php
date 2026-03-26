@@ -2,22 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ContactMessage extends Model
+class SpaceToLetEnquiry extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'service_id',
-        'first_name',
-        'last_name',
+        'name',
         'company',
-        'phone',
         'email',
-        'subject',
+        'phone',
+        'space_type_id',
+        'space_needed',
         'budget_range',
         'move_in_timeline',
         'message',
@@ -34,9 +30,9 @@ class ContactMessage extends Model
         'responded_at' => 'datetime',
     ];
 
-    public function service(): BelongsTo
+    public function spaceType(): BelongsTo
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(SpaceType::class);
     }
 
     public function responder(): BelongsTo
@@ -44,3 +40,4 @@ class ContactMessage extends Model
         return $this->belongsTo(User::class, 'responded_by');
     }
 }
+

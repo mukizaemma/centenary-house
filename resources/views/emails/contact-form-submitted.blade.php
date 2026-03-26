@@ -22,12 +22,18 @@
     @if($phone)
     <div class="field"><span class="label">Phone:</span> {{ $phone }}</div>
     @endif
-    @if($subject)
-    <div class="field"><span class="label">Subject:</span> {{ $subject }}</div>
+    @if($formSubject)
+    <div class="field"><span class="label">Subject:</span> {{ $formSubject }}</div>
+    @endif
+    @if($visiting_space !== null)
+    <div class="field"><span class="label">Visiting the space:</span> {{ $visiting_space ? 'Yes' : 'No' }}</div>
+    @endif
+    @if($visiting_space && $visit_time_preference)
+    <div class="field"><span class="label">Preferred time:</span> {{ $visit_time_preference }}</div>
     @endif
     <div class="field">
         <span class="label">Message:</span>
-        <div class="message-box">{{ nl2br(e($message)) }}</div>
+        <div class="message-box">{{ nl2br(e($messageBody)) }}</div>
     </div>
 
     <div class="footer">

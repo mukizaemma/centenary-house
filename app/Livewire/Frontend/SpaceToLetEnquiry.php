@@ -4,14 +4,26 @@ namespace App\Livewire\Frontend;
 
 use App\Mail\ContactFormConfirmation;
 use App\Mail\ContactFormSubmitted;
-use App\Models\ContactMessage;
+use App\Models\SpaceToLetEnquiry as SpaceToLetEnquiryModel;
+use App\Models\SpaceType;
 use App\Models\WebsiteSetting;
 use App\Support\SafeMail;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
-class OfficeEnquiry extends Component
+class SpaceToLetEnquiry extends Component
 {
+    public function mount(?int $spaceTypeId = null): void
+    {
+        if ($spaceTypeId === null) {
+            return;
+        }
+
+        if (SpaceType::query()->where('id', $spaceTypeId)->where('is_active', true)->exists()) {
+            $this->space_type_id = $spaceTypeId;
+        }
+    }
+
     public string $name = '';
 
     public string $company = '';
@@ -19,6 +31,8 @@ class OfficeEnquiry extends Component
     public string $email = '';
 
     public string $phone = '';
+
+    public ?int $space_type_id = null;
 
     public string $budget_range = '';
 
@@ -37,6 +51,7 @@ class OfficeEnquiry extends Component
             'company' => ['nullable', 'string', 'max:160'],
             'email' => ['required', 'email:rfc,dns', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
+            'space_type_id' => ['required', 'integer', 'exists:space_types,id'],
             'budget_range' => ['nullable', 'string', 'max:120'],
             'move_in_timeline' => ['nullable', 'string', 'max:120'],
             'message' => ['nullable', 'string', 'max:4000'],
@@ -47,18 +62,34 @@ class OfficeEnquiry extends Component
 
     public function submit(): void
     {
-        $this->validate();
+        $data = $this->validate();
 
         if (! $this->visiting_space) {
             $this->visit_time_preference = '';
         }
 
-        [$firstName, $lastName] = $this->splitEnquiryName($this->name);
+        $spaceType = SpaceType::find($data['space_type_id']);
 
-        $subject = 'Office space enquiry (homepage)';
+        SpaceToLetEnquiryModel::create([
+            'name' => $data['name'],
+            'company' => $data['company'] ?: null,
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?: null,
+            'space_type_id' => $data['space_type_id'],
+            'space_needed' => $spaceType?->title,
+            'budget_range' => $data['budget_range'] ?: null,
+            'move_in_timeline' => $data['move_in_timeline'] ?: null,
+            'message' => $data['message'] ?: null,
+            'visiting_space' => $this->visiting_space,
+            'visit_time_preference' => $this->visiting_space ? ($this->visit_time_preference ?: null) : null,
+        ]);
 
-        $compiledBody = trim(implode("\n", array_filter([
-            'Context: Homepage office enquiry',
+        $settings = WebsiteSetting::first();
+        $adminEmail = $settings?->email;
+
+        $subject = 'Space to Let enquiry';
+        $compiledMessage = trim(implode("\n", array_filter([
+            'Space needed: ' . ($spaceType?->title ?? '—'),
             $this->company ? 'Company: ' . $this->company : null,
             $this->phone ? 'Phone: ' . $this->phone : null,
             $this->budget_range ? 'Budget range: ' . $this->budget_range : null,
@@ -68,69 +99,45 @@ class OfficeEnquiry extends Component
             $this->message ? ("\nMessage:\n" . $this->message) : null,
         ])));
 
-        ContactMessage::create([
-            'service_id' => null,
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'company' => $this->company ?: null,
-            'phone' => $this->phone ?: null,
-            'email' => $this->email,
-            'subject' => $subject,
-            'budget_range' => $this->budget_range ?: null,
-            'move_in_timeline' => $this->move_in_timeline ?: null,
-            'message' => $compiledBody !== '' ? $compiledBody : '—',
-            'visiting_space' => $this->visiting_space,
-            'visit_time_preference' => $this->visiting_space ? ($this->visit_time_preference ?: null) : null,
-        ]);
-
-        $settings = WebsiteSetting::first();
-        $adminEmail = $settings?->email;
-
         $mailOk = true;
         if ($adminEmail) {
             $mailOk = SafeMail::send(fn () => Mail::to($adminEmail)->send(new ContactFormSubmitted(
-                first_name: $firstName,
-                last_name: $lastName,
+                first_name: $this->name,
+                last_name: '',
                 email: $this->email,
                 phone: $this->phone ?: null,
                 formSubject: $subject,
-                messageBody: $compiledBody !== '' ? $compiledBody : 'New office enquiry received.',
+                messageBody: $compiledMessage !== '' ? $compiledMessage : 'New enquiry received.',
                 visiting_space: $this->visiting_space,
                 visit_time_preference: $this->visiting_space ? ($this->visit_time_preference ?: null) : null,
             ))) && $mailOk;
         }
 
         $mailOk = SafeMail::send(fn () => Mail::to($this->email)->send(new ContactFormConfirmation(
-            first_name: $firstName,
+            first_name: $this->name,
             email: $this->email,
-            messageBody: $this->message ?: 'Thank you for your office space enquiry at Centenary House.',
+            messageBody: $this->message ?: 'Thank you for contacting us about office spaces at Centenary House.',
         ))) && $mailOk;
 
         $flash = $mailOk
-            ? 'Thank you! Your office enquiry has been sent. We will get back to you soon.'
+            ? 'Thank you! Your enquiry has been sent. We will get back to you soon.'
             : SafeMail::receivedButNotificationFailed();
-        session()->flash('office_enquiry_success', $flash);
+        session()->flash('space_to_let_enquiry_success', $flash);
         $this->dispatch('notify', type: $mailOk ? 'success' : 'warning', title: $mailOk ? 'Enquiry sent' : 'Enquiry received', message: $flash);
 
-        $this->reset('name', 'company', 'email', 'phone', 'budget_range', 'move_in_timeline', 'message', 'visiting_space', 'visit_time_preference');
-    }
-
-    /**
-     * @return array{0: string, 1: string}
-     */
-    private function splitEnquiryName(string $name): array
-    {
-        $name = trim($name);
-        if ($name === '') {
-            return ['', '—'];
-        }
-        $parts = preg_split('/\s+/', $name, 2);
-
-        return [$parts[0], $parts[1] ?? '—'];
+        $this->reset('name', 'company', 'email', 'phone', 'space_type_id', 'budget_range', 'move_in_timeline', 'message', 'visiting_space', 'visit_time_preference');
     }
 
     public function render()
     {
-        return view('livewire.frontend.office-enquiry');
+        $spaceTypes = SpaceType::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('title')
+            ->get();
+
+        return view('livewire.frontend.space-to-let-enquiry', [
+            'spaceTypes' => $spaceTypes,
+        ]);
     }
 }

@@ -114,10 +114,32 @@
                     <a href="{{ route('admin.dashboard') }}" class="nav-item nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                         <i class="fa fa-tachometer-alt me-2"></i>Dashboard
                     </a>
+                     <a href="{{ route('admin.room-enquiries.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.room-enquiries.*') ? 'active' : '' }}">
+                        <i class="fa fa-envelope me-2"></i>Enquiries
+                    </a>
 
-                    {{-- Hospital settings (website + headers) --}}
-                    <a href="{{ route('admin.settings.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
-                        <i class="fa fa-hospital me-2"></i>Settings
+                    {{-- Centenary House: Services, Rooms, Enquiries, Team --}}
+                    <a href="{{ route('admin.services.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
+                        <i class="fa fa-concierge-bell me-2"></i>Services
+                    </a>
+                    <a href="{{ route('admin.rooms.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.rooms.*') ? 'active' : '' }}">
+                        <i class="fa fa-door-open me-2"></i>Rooms
+                    </a>
+                    <a href="{{ route('admin.space-to-let-page.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.space-to-let-page.*') ? 'active' : '' }}">
+                        <i class="fa fa-map-marked-alt me-2"></i>Space to Let Page
+                    </a>
+                    <a href="{{ route('admin.space-types.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.space-types.*') ? 'active' : '' }}">
+                        <i class="fa fa-th-large me-2"></i>Space Types
+                    </a>
+                    <a href="{{ route('admin.space-testimonials.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.space-testimonials.*') ? 'active' : '' }}">
+                        <i class="fa fa-comment-dots me-2"></i>Testimonials
+                    </a>
+
+                    <a href="{{ route('admin.team.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.team.*') ? 'active' : '' }}">
+                        <i class="fa fa-users me-2"></i>Team
+                    </a>
+                    <a href="{{ route('admin.partners.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.partners.*') ? 'active' : '' }}">
+                        <i class="fa fa-handshake me-2"></i>Trusted Partners
                     </a>
 
                     {{-- Page headers (public pages hero images) --}}
@@ -130,21 +152,10 @@
                         <i class="fa fa-images me-2"></i>Home Slides
                     </a>
 
-                    {{-- Centenary House: Services, Rooms, Enquiries, Team --}}
-                    <a href="{{ route('admin.services.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
-                        <i class="fa fa-concierge-bell me-2"></i>Services
-                    </a>
-                    <a href="{{ route('admin.rooms.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.rooms.*') ? 'active' : '' }}">
-                        <i class="fa fa-door-open me-2"></i>Rooms
-                    </a>
-                    <a href="{{ route('admin.room-enquiries.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.room-enquiries.*') ? 'active' : '' }}">
-                        <i class="fa fa-envelope me-2"></i>Room Enquiries
-                    </a>
-                    <a href="{{ route('admin.team.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.team.*') ? 'active' : '' }}">
-                        <i class="fa fa-users me-2"></i>Team
-                    </a>
-                    <a href="{{ route('admin.partners.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.partners.*') ? 'active' : '' }}">
-                        <i class="fa fa-handshake me-2"></i>Trusted Partners
+
+                    {{-- Hospital settings (website + headers) --}}
+                    <a href="{{ route('admin.settings.index') }}" class="nav-item nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                        <i class="fa fa-hospital me-2"></i>Settings
                     </a>
 
                     {{-- People --}}

@@ -21,6 +21,7 @@ Route::get('/about', \App\Livewire\Frontend\About::class)->name('about');
 Route::get('/services', \App\Livewire\Frontend\Services::class)->name('public.services');
 Route::get('/services/{service:slug}', \App\Livewire\Frontend\ServiceShow::class)->name('public.services.show');
 Route::get('/space-to-let', \App\Livewire\Frontend\Spaces::class)->name('space-to-let');
+Route::get('/book-tour-visit', \App\Livewire\Frontend\BookTourVisit::class)->name('book-tour-visit');
 Route::get('/space-to-let/{room:slug}', \App\Livewire\Frontend\RoomShow::class)->name('space-to-let.show');
 Route::get('/updates', \App\Livewire\Frontend\Updates::class)->name('updates');
 Route::get('/contact', \App\Livewire\Frontend\Contact::class)->name('contact');
@@ -53,6 +54,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Centenary House: Services, Rooms, Enquiries, Team
         Route::get('/services', \App\Livewire\Admin\Services\Index::class)->name('services.index');
         Route::get('/rooms', \App\Livewire\Admin\Rooms\Index::class)->name('rooms.index');
+        Route::get('/space-to-let-page', \App\Livewire\Admin\SpaceToLetPage\Index::class)->name('space-to-let-page.index');
+        Route::get('/space-types', \App\Livewire\Admin\SpaceTypes\Index::class)->name('space-types.index');
+        Route::get('/space-testimonials', \App\Livewire\Admin\SpaceTestimonials\Index::class)->name('space-testimonials.index');
         Route::get('/room-enquiries', \App\Livewire\Admin\RoomEnquiries\Index::class)->name('room-enquiries.index');
         Route::get('/team', \App\Livewire\Admin\Team\Index::class)->name('team.index');
         Route::get('/partners', \App\Livewire\Admin\Partners\Index::class)->name('partners.index');

@@ -1,6 +1,8 @@
-@props(['title' => 'Page', 'header' => null, 'image' => null])
+@props(['title' => 'Page', 'header' => null, 'image' => null, 'uppercaseTitle' => true, 'useHeaderTitle' => true])
 @php
-    $displayTitle = $header && $header->title ? $header->title : $title;
+    $displayTitle = ! $useHeaderTitle
+        ? $title
+        : ($header && $header->title ? $header->title : $title);
     $caption = $header && $header->caption ? $header->caption : null;
     $backgroundImage = null;
 
@@ -19,7 +21,7 @@
         @endif
         <div class="locator-overlay"></div>
         <div class="locator-text">
-            <h1 class="locator-title">{{ $displayTitle }}</h1>
+            <h1 class="locator-title {{ $uppercaseTitle ? '' : 'locator-title--natural' }}">{{ $displayTitle }}</h1>
             @if($caption)
                 <p class="locator-caption">{{ $caption }}</p>
             @endif

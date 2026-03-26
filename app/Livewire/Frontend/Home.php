@@ -3,7 +3,7 @@
 namespace App\Livewire\Frontend;
 
 use App\Models\HomeSlider;
-use App\Models\Room;
+use App\Models\SpaceType;
 use App\Models\Service;
 use App\Models\WebsiteSetting;
 use Livewire\Attributes\Layout;
@@ -16,9 +16,11 @@ class Home extends Component
     {
         $settings = WebsiteSetting::first();
         $sliders = HomeSlider::where('is_active', true)->orderBy('sort_order')->get();
-        $featuredRooms = Room::where('is_available', true)
+
+        $spaceTypes = SpaceType::query()
+            ->where('is_active', true)
             ->orderBy('sort_order')
-            ->limit(6)
+            ->orderBy('title')
             ->get();
 
         $services = Service::where('is_active', true)
@@ -29,7 +31,7 @@ class Home extends Component
         return view('livewire.frontend.home', [
             'settings' => $settings,
             'sliders' => $sliders,
-            'featuredRooms' => $featuredRooms,
+            'spaceTypes' => $spaceTypes,
             'services' => $services,
         ]);
     }

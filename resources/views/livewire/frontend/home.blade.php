@@ -71,20 +71,21 @@
 
         {{-- About us section (scroll after slide) --}}
         @if($settings && ($settings->home_background_image_path || $settings->about_description || $settings->about_heading))
-            <section class="welcome-section">
+            <section class="welcome-section about-home">
                 <div class="about-medic">
                     @if($settings->home_background_image_path)
-                        <div class="cover-img">
-                            <img src="{{ asset($settings->home_background_image_path) }}" alt="About {{ $settings->company_name ?? 'Centenary House' }}">
+                        <div class="cover-img about-medic__media">
+                            <img src="{{ asset($settings->home_background_image_path) }}" alt="About {{ $settings->company_name ?? 'Centenary House' }}" loading="lazy">
                         </div>
                     @endif
-                    <div class="about-medic-description">
-                        <h3 class="heading">{{ $settings->about_heading ?? 'About ' . ($settings->company_name ?? 'Centenary House') }}</h3>
-                        <div class="medic-description">
+                    <div class="about-medic-description about-medic__content">
+                        <span class="about-home__kicker">About us</span>
+                        <h3 class="heading about-medic__title">{{ $settings->about_heading ?? 'About ' . ($settings->company_name ?? 'Centenary House') }}</h3>
+                        <div class="medic-description about-medic__body">
                             {!! $settings->about_description ?? $settings->home_background_text ?? '' !!}
                         </div>
                         <div class="welcome-actions">
-                            <a href="{{ route('about') }}" wire:navigate class="btn-primary">
+                            <a href="{{ route('about') }}" wire:navigate class="btn-primary about-medic__cta">
                                 View more about us
                             </a>
                         </div>
@@ -155,66 +156,38 @@
             </section>
         @endif
 
-        {{-- Available office spaces / rooms --}}
-        @if(isset($featuredRooms) && $featuredRooms->count())
-            <section class="home-spaces">
+        {{-- Types of spaces available --}}
+        @if(isset($spaceTypes) && $spaceTypes->count())
+            <section class="home-space-types">
                 <div class="section-header">
-                    <span class="about-label">OFFICE SPACES</span>
-                    <h3 class="section-heading">
-                        Available office spaces and rooms for rent
-                    </h3>
-                    <p class="section-sub">
-                        Browse the spaces currently available and request the one that fits your needs.
-                    </p>
+                    <h3 class="section-heading">Types of spaces available</h3>
+                    <p class="section-sub">Choose a workspace type and request the option that fits your needs.</p>
                 </div>
 
-                <div class="spaces-grid">
-                    @foreach($featuredRooms as $room)
+                <div class="space-types-grid">
+                    @foreach($spaceTypes as $type)
                         @php
-                            $usesPerSqm = $room->pricing_mode === 'per_sqm' && $room->square_meters && $room->amount_per_sqm;
-                            $hasCustom = $room->amount !== null;
-                            $shortDescription = \Illuminate\Support\Str::limit(strip_tags($room->description ?? ''), 130);
+                            $descPlain = strip_tags($type->description ?? '');
+                            $descExcerpt = \Illuminate\Support\Str::limit($descPlain, 150);
                         @endphp
-                        <article class="space-card">
-                            <div class="space-card__cover">
-                                @if($room->cover_image_path)
-                                    <img src="{{ asset($room->cover_image_path) }}" alt="{{ $room->title }}">
-                                @else
-                                    <div class="space-card__cover-placeholder"></div>
+                        <article class="space-type-card">
+                            <div class="space-type-card__top">
+                                <h4 class="space-type-card__title">{{ $type->title }}</h4>
+                                @if(!empty($type->starting_price))
+                                    <span class="space-type-card__price">From {{ $type->starting_price }}</span>
                                 @endif
                             </div>
-                            <div class="space-card__body">
-                                <div class="space-card__title-row">
-                                    <h3 class="space-card__title">{{ $room->title }}</h3>
-                                    @if($room->floor)
-                                        <span class="space-card__floor-badge">{{ $room->floor }} Floor</span>
-                                    @endif
-                                </div>
 
-                                @if($shortDescription)
-                                    <p class="space-card__excerpt">{{ $shortDescription }}</p>
-                                @endif
+                            @if(!empty($descExcerpt))
+                                <p class="space-type-card__desc">{{ $descExcerpt }}</p>
+                            @endif
 
-                                <div class="space-card__meta">
-                                    @if($room->square_meters !== null)
-                                        <span>{{ number_format($room->square_meters, 0) }} m²</span>
-                                    @endif
-                                    @if($usesPerSqm)
-                                        <span class="space-card__meta-separator">•</span>
-                                        <span>From {{ number_format($room->amount_per_sqm, 2) }} per m²</span>
-                                    @elseif($hasCustom)
-                                        <span class="space-card__meta-separator">•</span>
-                                        <span>Approx. {{ number_format($room->amount, 2) }} / month</span>
-                                    @endif
-                                </div>
-
-                                <div class="space-card__button-row">
-                                    <a href="{{ route('space-to-let.show', $room->slug) }}"
-                                       wire:navigate
-                                       class="btn-primary space-card__button">
-                                        View details &amp; request
-                                    </a>
-                                </div>
+                            <div class="space-type-card__actions">
+                                <a href="{{ route('book-tour-visit', ['type' => $type->id]) }}"
+                                   wire:navigate
+                                   class="btn-primary space-type-card__button">
+                                    Book a Tour Visit
+                                </a>
                             </div>
                         </article>
                     @endforeach
@@ -257,45 +230,63 @@
         <section class="home-cta-contact-enquiry">
             <div class="home-cta-contact-enquiry__inner">
                 <div class="home-cta-contact-enquiry__col home-cta-contact-enquiry__col--contacts">
-                    <h2 class="home-cta-contact-enquiry__title">Talk to us</h2>
-                    <p class="home-cta-contact-enquiry__subtitle">
-                        Get in touch for any questions about offices, parking or services at
-                        {{ $settings->company_name ?? 'Centenary House' }}.
-                    </p>
+                    <div class="home-cta-contact-enquiry__panel">
+                        <span class="home-cta-contact-enquiry__kicker">Contact</span>
+                        <h2 class="home-cta-contact-enquiry__title">Talk to us</h2>
+                        <p class="home-cta-contact-enquiry__subtitle">
+                            Get in touch for any questions about offices, parking or services at
+                            {{ $settings->company_name ?? 'Centenary House' }}.
+                        </p>
 
-                    <div class="home-cta-contact-enquiry__contacts">
-                        @if($settings->address)
-                            <div class="home-cta-contact-enquiry__item">
-                                <div class="home-cta-contact-enquiry__item-label">Address</div>
-                                <div class="home-cta-contact-enquiry__item-value">
-                                    {{ $settings->address }}
+                        <div class="home-cta-contact-enquiry__contacts">
+                            @if($settings->address)
+                                <div class="home-cta-contact-enquiry__card">
+                                    <div class="home-cta-contact-enquiry__card-icon" aria-hidden="true">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    </div>
+                                    <div class="home-cta-contact-enquiry__card-body">
+                                        <div class="home-cta-contact-enquiry__item-label">Address</div>
+                                        <div class="home-cta-contact-enquiry__item-value home-cta-contact-enquiry__address">
+                                            {!! $settings->address !!}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        @endif
-                        @if($settings->phone_reception || $settings->phone_urgency)
-                            <div class="home-cta-contact-enquiry__item">
-                                <div class="home-cta-contact-enquiry__item-label">Phone</div>
-                                <div class="home-cta-contact-enquiry__item-value">
-                                    @if($settings->phone_reception)
-                                        <a href="tel:{{ $settings->phone_reception }}">{{ $settings->phone_reception }}</a>
-                                    @endif
-                                    @if($settings->phone_reception && $settings->phone_urgency)
-                                        ·
-                                    @endif
-                                    @if($settings->phone_urgency)
-                                        <a href="tel:{{ $settings->phone_urgency }}">{{ $settings->phone_urgency }}</a>
-                                    @endif
+                            @endif
+                            @if($settings->phone_reception || $settings->phone_urgency)
+                                <div class="home-cta-contact-enquiry__card">
+                                    <div class="home-cta-contact-enquiry__card-icon" aria-hidden="true">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                    </div>
+                                    <div class="home-cta-contact-enquiry__card-body">
+                                        <div class="home-cta-contact-enquiry__item-label">Phone</div>
+                                        <div class="home-cta-contact-enquiry__item-value">
+                                            @if($settings->phone_reception)
+                                                <a href="tel:{{ $settings->phone_reception }}">{{ $settings->phone_reception }}</a>
+                                            @endif
+                                            @if($settings->phone_reception && $settings->phone_urgency)
+                                                <span class="home-cta-contact-enquiry__sep">·</span>
+                                            @endif
+                                            @if($settings->phone_urgency)
+                                                <a href="tel:{{ $settings->phone_urgency }}">{{ $settings->phone_urgency }}</a>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        @endif
-                        @if($settings->email)
-                            <div class="home-cta-contact-enquiry__item">
-                                <div class="home-cta-contact-enquiry__item-label">Email</div>
-                                <div class="home-cta-contact-enquiry__item-value">
-                                    <a href="mailto:{{ $settings->email }}">{{ $settings->email }}</a>
+                            @endif
+                            @if($settings->email)
+                                <div class="home-cta-contact-enquiry__card">
+                                    <div class="home-cta-contact-enquiry__card-icon" aria-hidden="true">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                    </div>
+                                    <div class="home-cta-contact-enquiry__card-body">
+                                        <div class="home-cta-contact-enquiry__item-label">Email</div>
+                                        <div class="home-cta-contact-enquiry__item-value">
+                                            <a href="mailto:{{ $settings->email }}">{{ $settings->email }}</a>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        @endif
+                            @endif
+                        </div>
                     </div>
                 </div>
 
@@ -398,13 +389,127 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
-.welcome-section { margin: 30px 0; }
-.about-medic { display: grid; grid-template-columns: 1fr 1.2fr; column-gap: 40px; align-items: start; }
-@media (max-width: 950px) { .about-medic { grid-template-columns: 1fr; } }
-.cover-img { width: 100%; height: 400px; border-radius: 8px; overflow: hidden; }
-.cover-img img { width: 100%; height: 100%; object-fit: cover; }
-.about-medic-description .heading { font-size: 1.4rem; font-weight: 500; margin-bottom: 12px; }
-.medic-description { font-size: 0.9rem; color: #555; line-height: 1.6; }
+.welcome-section.about-home {
+    margin: 36px 0 44px;
+    padding: 8px 0 12px;
+}
+.about-medic {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    column-gap: clamp(28px, 5vw, 56px);
+    row-gap: 28px;
+    align-items: center;
+}
+@media (max-width: 950px) {
+    .about-medic { grid-template-columns: 1fr; }
+}
+.cover-img {
+    width: 100%;
+    min-height: 280px;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    max-height: 440px;
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.04),
+        0 20px 50px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.cover-img::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.cover-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+    .about-medic__media:hover img {
+        transform: scale(1.03);
+    }
+}
+.about-medic__content {
+    position: relative;
+    padding: 8px 0 8px 22px;
+}
+.about-medic__content::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    bottom: 3rem;
+    width: 4px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--primary), #5c1304);
+    opacity: 0.9;
+}
+@media (max-width: 950px) {
+    .about-medic__content {
+        padding-left: 0;
+    }
+    .about-medic__content::before {
+        display: none;
+    }
+}
+.about-home__kicker {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+.about-medic__title.heading,
+.about-medic-description .about-medic__title {
+    font-size: clamp(1.45rem, 2.6vw, 1.85rem);
+    font-weight: 700;
+    line-height: 1.28;
+    letter-spacing: -0.02em;
+    color: var(--realblack);
+    margin: 0 0 16px;
+    max-width: 22ch;
+}
+.medic-description.about-medic__body,
+.about-medic__body {
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.75;
+    text-align: start;
+    max-width: 38rem;
+}
+.medic-description.about-medic__body p,
+.about-medic__body p {
+    margin: 0 0 1em;
+    text-align: start !important;
+}
+.medic-description.about-medic__body p:last-child,
+.about-medic__body p:last-child {
+    margin-bottom: 0;
+}
+.welcome-actions {
+    margin-top: 22px;
+}
+.about-medic__cta.btn-primary {
+    padding: 12px 24px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 6px 20px rgba(138, 29, 3, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.about-medic__cta.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(138, 29, 3, 0.32);
+}
 /* Shared section header used for services & spaces */
 .section-header { text-align: center; max-width: 780px; margin: 26px auto 22px; }
 .section-heading { font-size: 1.5rem; font-weight: 600; margin: 10px 0 6px; color: var(--realblack); }
@@ -568,34 +673,25 @@
     opacity: 1;
 }
 
-/* Spaces / rooms */
-.home-spaces { margin: 10px 0 40px; }
-.spaces-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-.space-card { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 0 20px -2px rgba(0,0,0,0.08); display: flex; flex-direction: column; height: 100%; }
-.space-card__cover { height: 230px; background: #f5f5f5; overflow: hidden; }
-.space-card__cover img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
-.space-card:hover .space-card__cover img { transform: scale(1.05); }
-.space-card__cover-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg,#f5f5f5,#e0e0e0); }
-.space-card__body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-.space-card__title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.space-card__title { font-size: 1rem; font-weight: 600; margin: 0; color: var(--realblack); }
-.space-card__floor-badge { padding: 4px 8px; border-radius: 999px; background: #f5f5f5; font-size: 0.75rem; color: #555555; white-space: nowrap; }
-.space-card__excerpt { font-size: 0.88rem; color: #555; line-height: 1.6; margin: 4px 0 0; }
-.space-card__meta { font-size: 0.85rem; color: #666666; margin-top: 4px; }
-.space-card__meta-separator { margin: 0 4px; color: #cccccc; }
-.space-card__button-row { margin-top: 12px; }
-.space-card__button { width: 100%; justify-content: center; }
+/* Types of spaces */
+.home-space-types { margin: 10px 0 40px; padding: 26px 0 8px; background: #ffffff; }
+.space-types-grid { max-width: 1200px; margin: 0 auto; padding: 0 22px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.space-type-card { background: #ffffff; border-radius: 14px; padding: 18px 18px 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06); transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; min-height: 220px; }
+.space-type-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.10); }
+.space-type-card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.space-type-card__title { font-size: 1rem; font-weight: 700; margin: 0; color: var(--realblack); line-height: 1.3; }
+.space-type-card__price { font-size: 0.85rem; color: var(--primary); font-weight: 800; background: rgba(138,29,3,0.08); border: 1px solid rgba(138,29,3,0.14); padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+.space-type-card__desc { margin: 0; color: #555; font-size: 0.9rem; line-height: 1.7; flex: 1; }
+.space-type-card__actions { margin-top: 14px; }
+.space-type-card__button { width: 100%; justify-content: center; }
 
 @media (max-width: 1024px) {
-    .spaces-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    .space-types-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
-    .spaces-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
+    .home-space-types { padding: 18px 0 10px; }
+    .space-types-grid { grid-template-columns: minmax(0, 1fr); padding: 0 16px; }
 }
 
 /* CTA background using home background image */
@@ -616,54 +712,134 @@
     margin: 0 0 40px;
 }
 .home-cta-contact-enquiry__inner {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
-    gap: 24px;
-    align-items: flex-start;
-    padding: 24px 22px 26px;
+    gap: 28px;
+    align-items: stretch;
+    padding: 26px 24px 28px;
     border-radius: 18px;
     background: #ffffff;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    overflow: hidden;
 }
-.home-cta-contact-enquiry__title {
-    font-size: 1.4rem;
+.home-cta-contact-enquiry__inner::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 4px;
+    border-radius: 18px 18px 0 0;
+    background: linear-gradient(90deg, var(--primary), #5c1304);
+}
+.home-cta-contact-enquiry__panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.home-cta-contact-enquiry__kicker {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--primary);
     font-weight: 600;
     margin: 0 0 6px;
+}
+.home-cta-contact-enquiry__title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
     color: var(--realblack);
 }
 .home-cta-contact-enquiry__subtitle {
     font-size: 0.95rem;
-    color: #555;
-    margin: 0 0 16px;
+    line-height: 1.55;
+    color: #64748b;
+    margin: 0 0 18px;
+    max-width: 28rem;
 }
 .home-cta-contact-enquiry__contacts {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    flex: 1;
+}
+.home-cta-contact-enquiry__card {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #e8ecf0;
+    background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.home-cta-contact-enquiry__card:hover {
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+}
+.home-cta-contact-enquiry__card-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-light);
+    color: var(--primary);
+}
+.home-cta-contact-enquiry__card-body {
+    min-width: 0;
 }
 .home-cta-contact-enquiry__item-label {
-    font-size: 0.8rem;
+    font-size: 0.68rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #888;
-    margin-bottom: 2px;
+    letter-spacing: 0.12em;
+    color: #94a3b8;
+    margin-bottom: 4px;
 }
 .home-cta-contact-enquiry__item-value {
     font-size: 0.95rem;
+    line-height: 1.5;
     color: var(--realblack);
+}
+.home-cta-contact-enquiry__address p {
+    margin: 0 0 0.35rem;
+}
+.home-cta-contact-enquiry__address p:last-child {
+    margin-bottom: 0;
 }
 .home-cta-contact-enquiry__item-value a {
-    color: var(--realblack);
+    color: var(--primary);
     text-decoration: none;
+    font-weight: 500;
 }
 .home-cta-contact-enquiry__item-value a:hover {
-    color: var(--primary);
+    text-decoration: underline;
+}
+.home-cta-contact-enquiry__sep {
+    color: #cbd5e1;
+    margin: 0 0.2rem;
+}
+.home-cta-contact-enquiry__col--form {
+    border-left: 1px solid #eef0f3;
+    padding-left: 24px;
 }
 
 @media (max-width: 900px) {
     .home-cta-contact-enquiry__inner {
         grid-template-columns: 1fr;
+    }
+    .home-cta-contact-enquiry__col--form {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid #eef0f3;
+        padding-top: 22px;
     }
 }
 

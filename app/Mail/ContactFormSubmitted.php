@@ -17,8 +17,10 @@ class ContactFormSubmitted extends Mailable
         public string $last_name,
         public string $email,
         public ?string $phone,
-        public ?string $subject,
-        public string $message,
+        public ?string $formSubject,
+        public string $messageBody,
+        public ?bool $visiting_space = null,
+        public ?string $visit_time_preference = null,
     ) {}
 
     public function envelope(): Envelope

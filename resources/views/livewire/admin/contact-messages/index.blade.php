@@ -67,6 +67,18 @@
                                                     @if($msg->subject)
                                                         <p class="mb-2"><strong>Subject:</strong> {{ $msg->subject }}</p>
                                                     @endif
+                                                    @if(!empty($msg->company))
+                                                        <p class="mb-2"><strong>Company:</strong> {{ $msg->company }}</p>
+                                                    @endif
+                                                    @if($msg->service)
+                                                        <p class="mb-2"><strong>Service:</strong> {{ $msg->service->title }}</p>
+                                                    @endif
+                                                    @if(!empty($msg->budget_range))
+                                                        <p class="mb-2"><strong>Budget range:</strong> {{ $msg->budget_range }}</p>
+                                                    @endif
+                                                    @if(!empty($msg->move_in_timeline))
+                                                        <p class="mb-2"><strong>Timeline:</strong> {{ $msg->move_in_timeline }}</p>
+                                                    @endif
                                                     <p class="mb-0"><strong>Message:</strong></p>
                                                     <div class="bg-light p-3 rounded mt-1" style="white-space: pre-wrap;">{{ $msg->message }}</div>
                                                     <p class="small text-muted mt-2 mb-0">Received {{ $msg->created_at->format('F j, Y \a\t g:i A') }}</p>

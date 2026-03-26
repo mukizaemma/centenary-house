@@ -7,6 +7,7 @@ use App\Mail\ContactFormSubmitted;
 use App\Models\Room;
 use App\Models\RoomEnquiry;
 use App\Models\WebsiteSetting;
+use App\Support\SafeMail;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
@@ -46,26 +47,29 @@ class RoomEnquiryForm extends Component
             'status' => 'pending',
         ]);
 
+        $mailOk = true;
         if ($adminEmail) {
-            Mail::to($adminEmail)->send(new ContactFormSubmitted(
+            $mailOk = SafeMail::send(fn () => Mail::to($adminEmail)->send(new ContactFormSubmitted(
                 first_name: $this->name,
                 last_name: '',
                 email: $this->email,
                 phone: $this->phone ?: null,
-                subject: $subject,
-                message: $this->message,
-            ));
+                formSubject: $subject,
+                messageBody: $this->message,
+            ))) && $mailOk;
         }
 
-        Mail::to($this->email)->send(new ContactFormConfirmation(
+        $mailOk = SafeMail::send(fn () => Mail::to($this->email)->send(new ContactFormConfirmation(
             first_name: $this->name,
             email: $this->email,
-            message: $this->message,
-        ));
+            messageBody: $this->message,
+        ))) && $mailOk;
 
-        $message = 'Thank you! Your enquiry for this space has been sent. We will get back to you soon.';
+        $message = $mailOk
+            ? 'Thank you! Your enquiry for this space has been sent. We will get back to you soon.'
+            : SafeMail::receivedButNotificationFailed();
         session()->flash('room_enquiry_success', $message);
-        $this->dispatch('notify', type: 'success', title: 'Enquiry sent', message: $message);
+        $this->dispatch('notify', type: $mailOk ? 'success' : 'warning', title: $mailOk ? 'Enquiry sent' : 'Enquiry received', message: $message);
 
         $this->reset('name', 'email', 'phone', 'message');
     }

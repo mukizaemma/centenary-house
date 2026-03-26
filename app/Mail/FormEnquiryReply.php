@@ -8,27 +8,28 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ContactFormConfirmation extends Mailable
+class FormEnquiryReply extends Mailable
 {
     use Queueable, SerializesModels;
 
     public function __construct(
-        public string $first_name,
-        public string $email,
-        public string $messageBody,
+        public string $visitorName,
+        public string $contextLabel,
+        public string $originalMessage,
+        public string $adminResponse,
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'We Received Your Message - ' . config('app.name'),
+            subject: 'Re: your enquiry — '.config('app.name'),
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.contact-form-confirmation',
+            view: 'emails.form-enquiry-reply',
         );
     }
 

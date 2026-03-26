@@ -3,437 +3,305 @@
     <div class="content">
         @if($services->isEmpty())
             <section class="services-page">
-                <p class="services-empty">No services are currently published. Please check back soon.</p>
+                <div class="services-empty-panel">
+                    <p class="services-empty">No services are currently published. Please check back soon.</p>
+                </div>
             </section>
         @else
-            @php
-                $previewServices = $services->take(3);
-                $remainingServices = $services->slice(3);
-
-                $firstCover = $previewServices->first()?->cover_image;
-                $bgImage = $settings?->home_background_image_path
-                    ? asset($settings->home_background_image_path)
-                    : ($firstCover ? asset($firstCover) : null);
-            @endphp
-
-            {{-- Full-width parallax background wrapper --}}
-            <section
-                class="services-hero"
-                @if($bgImage)
-                    style="background-image: url('{{ $bgImage }}');"
-                @endif
-            >
-                <div class="services-hero__overlay"></div>
-
-                <div class="services-hero__inner">
-                    <header class="services-hero__header">
-                        <span class="services-kicker">OUR SERVICES</span>
-                        <h2 class="section-heading services-hero__title">Our Services</h2>
-                        <p class="services-lead">
+            <section class="services-listing">
+                <div class="services-listing__inner">
+                    <header class="services-listing__header">
+                        <h2 class="services-listing__title">Our Services</h2>
+                        <p class="services-listing__lead">
                             Discover the key services available at Centenary House, designed to support modern businesses and professionals.
                         </p>
                     </header>
 
-                    <div class="services-carousel-edge">
-                        <div class="services-carousel swiper services-carousel--preview">
-                            <div class="swiper-wrapper">
-                                @foreach($previewServices as $service)
-                                    @php
-                                        $serviceSummary = \Illuminate\Support\Str::limit(strip_tags($service->description ?? ''), 110);
-                                    @endphp
-                                    <div class="swiper-slide">
-                                        <article
-                                            class="service-card services-bg-card {{ $service->cover_image ? '' : 'services-bg-card--no-image' }}"
-                                            @if($service->cover_image)
-                                                style="background-image: url('{{ asset($service->cover_image) }}');"
-                                            @endif
-                                        >
-                                            <div class="services-bg-card__content">
-                                                <h3 class="services-bg-card__title">{{ $service->title }}</h3>
-
-                                                @if($serviceSummary)
-                                                    <p class="services-bg-card__excerpt">{{ $serviceSummary }}</p>
-                                                @endif
-
-                                                <a href="{{ route('public.services.show', $service->slug) }}"
-                                                   wire:navigate
-                                                   class="btn-primary services-bg-card__button">
-                                                    View more
-                                                </a>
-                                            </div>
-                                        </article>
+                    <div class="services-grid">
+                        @foreach($services as $service)
+                            @php
+                                $serviceSummary = \Illuminate\Support\Str::limit(strip_tags($service->description ?? ''), 140);
+                            @endphp
+                            <article class="services-grid__card">
+                                @if($service->cover_image)
+                                    <a href="{{ route('public.services.show', $service->slug) }}" wire:navigate class="services-grid__media">
+                                        <img src="{{ asset($service->cover_image) }}" alt="" loading="lazy">
+                                    </a>
+                                @else
+                                    <div class="services-grid__media services-grid__media--placeholder" aria-hidden="true">
+                                        <span class="services-grid__placeholder-icon">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                                        </span>
                                     </div>
-                                @endforeach
-                            </div>
+                                @endif
 
-                            <div class="swiper-button-prev services-carousel__btn services-carousel__btn--preview-prev"></div>
-                            <div class="swiper-button-next services-carousel__btn services-carousel__btn--preview-next"></div>
-                            <div class="swiper-pagination services-carousel__pagination services-carousel__pagination--preview"></div>
-                        </div>
+                                <div class="services-grid__body">
+                                    <h3 class="services-grid__card-title">
+                                        <a href="{{ route('public.services.show', $service->slug) }}" wire:navigate>{{ $service->title }}</a>
+                                    </h3>
+                                    @if($serviceSummary)
+                                        <p class="services-grid__excerpt">{{ $serviceSummary }}</p>
+                                    @endif
+                                    <a href="{{ route('public.services.show', $service->slug) }}"
+                                       wire:navigate
+                                        class="btn-primary services-grid__btn">
+                                        View more
+                                    </a>
+                                </div>
+                            </article>
+                        @endforeach
                     </div>
-
-                    @if($remainingServices->count())
-                        <div class="services-preview-footer">
-                            <a href="#services-all" class="btn-primary services-view-all">
-                                View all services
-                            </a>
-                        </div>
-                    @endif
                 </div>
             </section>
-
-            @if($remainingServices->count())
-                <section id="services-all" class="services-all">
-                    <div class="services-all__inner">
-                        <div class="services-carousel-edge">
-                            <div class="services-carousel swiper services-carousel--all">
-                                <div class="swiper-wrapper">
-                                    @foreach($remainingServices as $service)
-                                        @php
-                                            $serviceSummary = \Illuminate\Support\Str::limit(strip_tags($service->description ?? ''), 110);
-                                        @endphp
-                                        <div class="swiper-slide">
-                                            <article
-                                                class="service-card services-bg-card {{ $service->cover_image ? '' : 'services-bg-card--no-image' }}"
-                                                @if($service->cover_image)
-                                                    style="background-image: url('{{ asset($service->cover_image) }}');"
-                                                @endif
-                                            >
-                                                <div class="services-bg-card__content">
-                                                    <h3 class="services-bg-card__title">{{ $service->title }}</h3>
-
-                                                    @if($serviceSummary)
-                                                        <p class="services-bg-card__excerpt">{{ $serviceSummary }}</p>
-                                                    @endif
-
-                                                    <a href="{{ route('public.services.show', $service->slug) }}"
-                                                       wire:navigate
-                                                       class="btn-primary services-bg-card__button">
-                                                        View more
-                                                    </a>
-                                                </div>
-                                            </article>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                <div class="swiper-button-prev services-carousel__btn services-carousel__btn--all-prev"></div>
-                                <div class="swiper-button-next services-carousel__btn services-carousel__btn--all-next"></div>
-                                <div class="swiper-pagination services-carousel__pagination services-carousel__pagination--all"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            @endif
         @endif
     </div>
 
     <style>
-    .services-page { padding: 36px 0 40px; }
+    .services-page {
+        padding: 32px 0 48px;
+    }
 
-    .services-hero {
+    .services-empty-panel {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 36px 28px;
+        text-align: center;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        box-shadow:
+            0 4px 6px rgba(0, 0, 0, 0.02),
+            0 16px 40px rgba(0, 0, 0, 0.07);
         position: relative;
-        width: 100vw;
-        padding: 56px 0 44px;
-        border-radius: 0;
-        margin-left: 50%;
-        transform: translateX(-50%);
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed; /* parallax-like look */
         overflow: hidden;
     }
 
-    .services-hero__overlay {
+    .services-empty-panel::before {
+        content: "";
         position: absolute;
-        inset: 0;
-        background: linear-gradient(to right, rgba(0,0,0,0.65), rgba(0,0,0,0.10));
-    }
-
-    .services-hero__inner {
-        position: relative;
-        z-index: 1;
-        max-width: 100%;
-        margin: 0 auto;
-    padding: 0;
-    }
-
-    .services-hero__header {
-        text-align: center;
-        margin-bottom: 26px;
-        color: #ffffff;
-    padding: 0 22px;
-    }
-
-    .services-kicker {
-        display: inline-block;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.95);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 10px;
-    }
-
-    .services-hero__title { color: #ffffff; }
-
-    .services-lead {
-        max-width: 820px;
-        margin: 10px auto 0;
-        font-size: 0.95rem;
-        color: rgba(255, 255, 255, 0.86);
-        line-height: 1.8;
-    }
-
-    .services-preview-list {
-        margin-top: 18px;
-        display: flex;
-        flex-direction: column;
-        gap: 22px; /* spacing between rows */
-    }
-
-    .services-preview-footer {
-        margin-top: 18px;
-        text-align: center;
-    }
-
-    .services-view-all {
-        background: rgba(255,255,255,0.94) !important;
-        color: #111 !important;
-        border: none !important;
-        display: inline-flex;
-    }
-
-    .services-all {
-        padding: 34px 0 60px;
-        background: #f2f0f1;
-        width: 100vw;
-        border-radius: 0;
-        margin-left: 50%;
-        transform: translateX(-50%);
-    }
-
-    .services-all__inner {
-        max-width: 100%;
-        margin: 0 auto;
-    padding: 0;
-    }
-
-    .services-all-list {
-        display: flex;
-        flex-direction: column;
-        gap: 22px;
-    }
-
-    .services-bg-card {
-        position: relative;
-        border-radius: 0;
-        overflow: hidden;
-        width: 100%;
-        min-height: 100vh;
-        height: 100vh;
-        background: #e9e9e9;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        box-shadow: 0 0 18px -4px rgba(0, 0, 0, 0.12);
-    }
-
-    .services-bg-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-        background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.05) 100%);
-    }
-
-    .services-bg-card--no-image {
-        background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
-    }
-
-    .services-bg-card__content {
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-    justify-content: flex-end;
-        align-items: center;
-        text-align: center;
-    padding: 26px 22px 32px;
-        gap: 10px;
-        color: #ffffff;
-    }
-
-    .services-bg-card__title {
-        margin: 0;
-        font-size: 1.05rem;
-        font-weight: 650;
-    }
-
-    .services-bg-card__excerpt {
-        margin: 0;
-        font-size: 0.9rem;
-        color: rgba(255,255,255,0.88);
-        line-height: 1.6;
-    }
-
-    .services-bg-card__button {
-        margin-top: 6px;
-        align-self: center;
-    }
-
-    .services-bg-card .btn-primary {
-        background: rgba(255,255,255,0.94) !important;
-        color: #111 !important;
-        border: none !important;
-    }
-
-    .services-bg-card .btn-primary:hover {
-        background: rgba(255,255,255,1) !important;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), #5c1304);
     }
 
     .services-empty {
-        font-size: 0.9rem;
-        color: #666666;
+        font-size: 0.95rem;
+        color: #64748b;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .services-listing {
+        padding: 28px 0 56px;
+        background: linear-gradient(180deg, #fafbfc 0%, #ffffff 28%, #ffffff 100%);
+    }
+
+    .services-listing__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 22px;
+    }
+
+    .services-listing__header {
         text-align: center;
-        padding: 30px 0;
+        max-width: 720px;
+        margin: 0 auto 40px;
+        padding: 8px 8px 0;
     }
 
-    @media (max-width: 992px) {
-        /* stacked rows - no grid changes needed */
+    .services-listing__kicker {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        margin-bottom: 10px;
     }
 
-    @media (max-width: 768px) {
-        .services-hero {
-            background-attachment: scroll; /* mobile-friendly */
-            padding: 38px 0 30px;
-        }
-        .services-hero__inner { padding: 0 16px; }
-        .services-all__inner { padding: 0 16px; }
-        .services-preview-list,
-        .services-all-list { gap: 18px; }
-
-        .services-bg-card {
-            min-height: 60vh;
-            height: 60vh;
-        }
+    .services-listing__title {
+        margin: 0 0 14px;
+        font-size: clamp(1.45rem, 2.8vw, 1.85rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--realblack);
+        line-height: 1.2;
+        position: relative;
+        padding-bottom: 10px;
     }
 
-    /* Services carousel (edge-to-edge) */
-    .services-carousel-edge {
-        width: 100%;
-        margin-left: 0;
-        transform: none;
+    .services-listing__title::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+        width: 48px;
+        height: 3px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, var(--primary), rgba(138, 29, 3, 0.35));
     }
 
-    .services-carousel {
-        width: 100%;
+    .services-listing__lead {
+        margin: 16px 0 0;
+        font-size: 0.96rem;
+        color: #64748b;
+        line-height: 1.7;
     }
 
-    .services-carousel {
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .services-grid__card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        box-shadow:
+            0 4px 6px rgba(0, 0, 0, 0.02),
+            0 14px 36px rgba(0, 0, 0, 0.07);
+        transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
+    }
+
+    .services-grid__card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        z-index: 2;
+        background: linear-gradient(90deg, var(--primary), #5c1304);
+        opacity: 0.95;
+    }
+
+    .services-grid__card:hover {
+        box-shadow:
+            0 8px 12px rgba(0, 0, 0, 0.04),
+            0 22px 48px rgba(0, 0, 0, 0.11);
+        transform: translateY(-4px);
+        border-color: rgba(138, 29, 3, 0.15);
+    }
+
+    .services-grid__media {
+        display: block;
+        aspect-ratio: 16 / 10;
+        overflow: hidden;
+        background: #ececec;
         position: relative;
     }
 
-    .services-carousel .swiper-wrapper {
-        width: 100%;
-    }
-
-    .services-carousel .swiper-slide {
-        width: 100% !important;
-        display: flex;
-    }
-
-    .services-carousel__btn {
-        color: #fff;
-    }
-
-    .services-carousel__pagination .swiper-pagination-bullet {
-        background: rgba(255, 255, 255, 0.7);
-    }
-
-    .services-carousel__pagination .swiper-pagination-bullet-active {
-        background: #ffffff;
-    }
-
-    .services-carousel__pagination {
+    .services-grid__media::after {
+        content: "";
         position: absolute;
-        bottom: 26px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 50;
-        display: flex;
-        justify-content: center;
+        inset: 0;
+        pointer-events: none;
+        box-shadow: inset 0 0 0 1px rgba(138, 29, 3, 0.06);
     }
 
-    .services-carousel__pagination .swiper-pagination-bullet {
-        width: 10px;
-        height: 10px;
-        margin: 0 6px !important;
-        opacity: 1;
+    .services-grid__media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.45s ease;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .services-grid__card:hover .services-grid__media img {
+            transform: scale(1.05);
+        }
+    }
+
+    .services-grid__media--placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(145deg, var(--primary-light) 0%, #fafafa 55%, #f0ede8 100%);
+    }
+
+    .services-grid__placeholder-icon {
+        color: rgba(138, 29, 3, 0.35);
+    }
+
+    .services-grid__body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        padding: 20px 20px 22px;
+        gap: 12px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .services-grid__card-title {
+        margin: 0;
+        font-size: 1.08rem;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+    }
+
+    .services-grid__card-title a {
+        color: var(--realblack);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .services-grid__card-title a:hover {
+        color: var(--primary);
+    }
+
+    .services-grid__excerpt {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #4b5563;
+        line-height: 1.65;
+        flex: 1;
+    }
+
+    .services-grid__btn {
+        align-self: flex-start;
+        margin-top: 4px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        padding: 10px 20px;
+        box-shadow: 0 6px 18px rgba(138, 29, 3, 0.22);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .services-grid__btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 26px rgba(138, 29, 3, 0.3);
+    }
+
+    @media (max-width: 992px) {
+        .services-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 600px) {
+        .services-listing {
+            padding: 20px 0 44px;
+        }
+        .services-listing__inner {
+            padding: 0 16px;
+        }
+        .services-listing__header {
+            margin-bottom: 28px;
+        }
+        .services-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
     }
     </style>
-
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('assets/css/swiper-bundle.min.css') }}">
-    @endpush
-
-    @push('scripts')
-        <script src="{{ asset('assets/js/swiper-bundle.min.js') }}"></script>
-        <script>
-            (function () {
-                function initServicesCarousel(containerSelector, navPrevClass, navNextClass, paginationClass) {
-                    const el = document.querySelector(containerSelector);
-                    if (!el || !window.Swiper) return;
-                    if (el.dataset.inited === "1") return;
-                    el.dataset.inited = "1";
-
-                    const slidesCount = el.querySelectorAll(".swiper-slide").length;
-
-                    new Swiper(el, {
-                        slidesPerView: 1,
-                        spaceBetween: 0,
-                        loop: slidesCount > 1,
-                        speed: 800,
-                        navigation: {
-                            prevEl: el.querySelector(navPrevClass),
-                            nextEl: el.querySelector(navNextClass),
-                        },
-                        pagination: {
-                            el: el.querySelector(paginationClass),
-                            clickable: true,
-                        },
-                    });
-                }
-
-                function initAll() {
-                    initServicesCarousel(
-                        ".services-carousel--preview",
-                        ".services-carousel__btn--preview-prev",
-                        ".services-carousel__btn--preview-next",
-                        ".services-carousel__pagination--preview"
-                    );
-
-                    initServicesCarousel(
-                        ".services-carousel--all",
-                        ".services-carousel__btn--all-prev",
-                        ".services-carousel__btn--all-next",
-                        ".services-carousel__pagination--all"
-                    );
-                }
-
-                if (document.readyState === "loading") {
-                    document.addEventListener("DOMContentLoaded", initAll);
-                } else {
-                    initAll();
-                }
-
-                if (window.Livewire && typeof window.Livewire.hook === "function") {
-                    window.Livewire.hook("message.processed", initAll);
-                }
-            })();
-        </script>
-    @endpush
 </div>
-

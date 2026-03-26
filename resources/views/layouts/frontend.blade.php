@@ -21,19 +21,24 @@
 <body>
     <div class="container">
         {{-- Top bar --}}
-            <div class="topheader">
+        <div class="topheader">
+            <div class="topheader-inner">
             <div class="top-left">
                 @if($websiteSettings->address ?? null)
-                    <label>
-                        <svg viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="17" height="17"><path d="M25.497 6.503l.001-.003-.004.005L3.5 15.901l11.112 1.489 1.487 11.11 9.396-21.992.005-.006z"/></svg>
-                        {{ strip_tags($websiteSettings->address) }}
-                    </label>
+                    <span class="topheader-item">
+                        <span class="topheader-item__icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </span>
+                        <span class="topheader-item__text">{{ strip_tags($websiteSettings->address) }}</span>
+                    </span>
                 @endif
                 @if($websiteSettings->phone_reception ?? $websiteSettings->phone_urgency ?? null)
-                    <label>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="17" height="17"><path d="M16.5562 12.9062L16.1007 13.359C16.1007 13.359 15.0181 14.4355 12.0631 11.4972C9.10812 8.55901 10.1907 7.48257 10.1907 7.48257L10.4775 7.19738C11.1841 6.49484 11.2507 5.36691 10.6342 4.54348L9.37326 2.85908C8.61028 1.83992 7.13596 1.70529 6.26145 2.57483L4.69185 4.13552C4.25823 4.56668 3.96765 5.12559 4.00289 5.74561C4.09304 7.33182 4.81071 10.7447 8.81536 14.7266C13.0621 18.9492 17.0468 19.117 18.6763 18.9651C19.1917 18.9171 19.6399 18.6546 20.0011 18.2954L21.4217 16.883C22.3806 15.9295 22.1102 14.2949 20.8833 13.628L18.9728 12.5894C18.1672 12.1515 17.1858 12.2801 16.5562 12.9062Z"/></svg>
-                        <a href="tel:{{ $websiteSettings->phone_reception ?? $websiteSettings->phone_urgency }}">{{ $websiteSettings->phone_reception ?? $websiteSettings->phone_urgency }}</a>
-                    </label>
+                    <span class="topheader-item">
+                        <span class="topheader-item__icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        </span>
+                        <a class="topheader-item__link" href="tel:{{ $websiteSettings->phone_reception ?? $websiteSettings->phone_urgency }}">{{ $websiteSettings->phone_reception ?? $websiteSettings->phone_urgency }}</a>
+                    </span>
                 @endif
             </div>
             <div class="top-right">
@@ -73,6 +78,7 @@
                     </a>
                 @endif
             </div>
+            </div>
         </div>
 
         {{-- Navbar --}}
@@ -95,11 +101,6 @@
             </div>
 
             <div class="navbar-right">
-                @if($websiteSettings->partner_logo_path ?? null)
-                    <div class="navbar-partner-logo">
-                        <img src="{{ asset($websiteSettings->partner_logo_path) }}" alt="Partner logo">
-                    </div>
-                @endif
                 <a href="{{ route('login') }}" class="nav-link nav-link-login {{ request()->routeIs('login') ? 'active' : '' }}" wire:navigate>
                     Login
                 </a>
@@ -270,6 +271,16 @@
                     });
                 @endif
 
+                @if(session('space_to_let_enquiry_success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Enquiry sent',
+                        text: @json(session('space_to_let_enquiry_success')),
+                        timer: 4000,
+                        showConfirmButton: false
+                    });
+                @endif
+
                 @if($errors->any())
                     Swal.fire({
                         icon: 'error',
@@ -328,8 +339,9 @@
                     '.service-detail__card',
                     '.home-cta-contact-enquiry__inner',
                     '.office-enquiry',
-                    '.contact-page .contact-info-header',
-                    '.contact-form-section',
+                    '.contact-page__aside',
+                    '.contact-page__form-wrap .space-enquiry',
+                    '.contact-page__map',
                     '.feedback-page',
                     '.services-grid .service-card',
                     '.gallery-card',
