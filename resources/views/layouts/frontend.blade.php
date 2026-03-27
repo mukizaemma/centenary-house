@@ -102,7 +102,7 @@
                         <a href="{{ route('contact') }}" class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" wire:navigate>Contact</a>
                     </div>
                     <div class="navbar-right">
-                        <a href="{{ route('login') }}" class="nav-link nav-link-login {{ request()->routeIs('login') ? 'active' : '' }}" wire:navigate>
+                        <a href="https://pms.centenaryhouse.rw/" target="_blank" rel="noopener noreferrer" class="nav-link nav-link-login">
                             Login
                         </a>
                     </div>

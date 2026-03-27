@@ -214,14 +214,34 @@
             <div class="home-background-cta__overlay"></div>
             <div class="home-background-cta__content">
                 <div class="home-background-cta__inner">
-                    @if($settings->home_background_text)
-                        <div class="home-background-cta__caption">
-                            {!! $settings->home_background_text !!}
+                    <h2 class="home-background-cta__quote">
+                        "Centenary House is where ambitious businesses grow with confidence, flexibility, and a professional address in the heart of Kigali."
+                    </h2>
+                    <div class="home-background-cta__details">
+                        <div class="home-background-cta__panel home-background-cta__panel--features">
+                            <div class="home-background-cta__feature-tags" role="list" aria-label="Key space highlights">
+                                <span class="home-background-cta__tag" role="listitem">Prime location in Kigali</span>
+                                <span class="home-background-cta__tag" role="listitem">Flexible offices (private to full floor)</span>
+                                <span class="home-background-cta__tag" role="listitem">Professional environment</span>
+                                <span class="home-background-cta__tag" role="listitem">Accessibility and secure parking</span>
+                            </div>
                         </div>
-                    @endif
-                    <a href="{{ route('contact') }}" wire:navigate class="btn-primary home-background-cta__button">
-                        Book your space
-                    </a>
+
+                        <div class="home-background-cta__panel home-background-cta__panel--audience">
+                            <div class="home-background-cta__audience-title">
+                                <span class="home-background-cta__audience-icon" aria-hidden="true">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
+                                </span>
+                                <span>Who it's ideal for</span>
+                            </div>
+                            <div class="home-background-cta__audience-chips" role="list" aria-label="Best fit businesses">
+                                <span class="home-background-cta__chip" role="listitem">Startups</span>
+                                <span class="home-background-cta__chip" role="listitem">NGOs</span>
+                                <span class="home-background-cta__chip" role="listitem">Corporate offices</span>
+                                <span class="home-background-cta__chip" role="listitem">Consultants</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -698,13 +718,131 @@
 .home-background-cta { position: relative; border-radius: 18px; overflow: hidden; min-height: 260px; margin: 12px 0 32px; }
 .home-background-cta__bg { position: absolute; inset: 0; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; }
 .home-background-cta__overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.65), rgba(0,0,0,0.05)); }
-.home-background-cta__content { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; padding: 34px 32px; text-align: center; }
-.home-background-cta__inner { max-width: 640px; color: #ffffff; }
-.home-background-cta__caption { font-size: 0.98rem; line-height: 1.8; margin-bottom: 14px; }
-.home-background-cta__button { display: inline-flex; align-items: center; justify-content: center; }
+.home-background-cta__content { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; padding: 34px 32px; }
+.home-background-cta__inner { width: min(1040px, 100%); color: #ffffff; }
+.home-background-cta__caption {
+    font-size: 0.98rem;
+    line-height: 1.8;
+    margin: 0 auto 16px;
+    max-width: 760px;
+    text-align: center;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.38);
+}
+.home-background-cta__quote {
+    margin: 0 auto 18px;
+    max-width: 980px;
+    text-align: center;
+    color: #ffffff;
+    font-size: clamp(1.55rem, 3vw, 2.35rem);
+    font-weight: 800;
+    line-height: 1.28;
+    letter-spacing: -0.02em;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.62);
+}
+.home-background-cta__details {
+    display: grid;
+    gap: 16px;
+}
+.home-background-cta__panel {
+    border-radius: 18px;
+    padding: 8px 4px;
+    color: #ffffff;
+}
+.home-background-cta__feature-tags {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(280px, 420px));
+    justify-content: center;
+    gap: 14px 26px;
+    max-width: 940px;
+    margin: 0 auto;
+}
+.home-background-cta__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.18rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+    border-radius: 14px;
+    padding: 11px 14px;
+    min-height: 58px;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.72);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(2px);
+}
+.home-background-cta__tag::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ffb199;
+    box-shadow: 0 0 0 6px rgba(255, 177, 153, 0.24);
+    flex-shrink: 0;
+}
+.home-background-cta__audience-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+}
+.home-background-cta__audience-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffd3c4;
+    background: rgba(255, 255, 255, 0.16);
+}
+.home-background-cta__audience-chips {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+.home-background-cta__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    border-radius: 12px;
+    min-height: 48px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(2px);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.62);
+}
 @media (max-width: 768px) {
     .home-background-cta__bg { background-attachment: scroll; }
-    .home-background-cta__content { padding: 26px 22px; }
+    .home-background-cta__content { padding: 22px 16px; }
+    .home-background-cta__panel { padding: 10px 0; border-radius: 14px; }
+    .home-background-cta__quote {
+        font-size: clamp(1.15rem, 5.7vw, 1.6rem);
+        margin-bottom: 14px;
+    }
+    .home-background-cta__feature-tags {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: 100%;
+        gap: 10px;
+    }
+    .home-background-cta__tag {
+        font-size: 1rem;
+        min-height: 52px;
+        padding: 10px 12px;
+    }
+    .home-background-cta__audience-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* CTA block below background image: contacts left, office enquiry form right */
