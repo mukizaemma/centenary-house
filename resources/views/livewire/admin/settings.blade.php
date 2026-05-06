@@ -322,6 +322,21 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label">About page main heading</label>
+                                <input
+                                    type="text"
+                                    class="form-control @error('about_heading') is-invalid @enderror"
+                                    wire:model.defer="about_heading"
+                                    placeholder="e.g. We collaborate for better healthcare"
+                                    maxlength="255"
+                                >
+                                @error('about_heading')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted d-block mt-1">Large title on the About Us page and in the home “about” block.</small>
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="form-label">Company Description</label>
                                 <textarea
                                     class="form-control summernote @error('about_description') is-invalid @enderror"
