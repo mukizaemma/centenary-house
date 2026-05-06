@@ -425,14 +425,15 @@
         height: 280px;
         border-radius: 12px;
         overflow: hidden;
-        background: #f8fafc;
+        background: #ececec;
         border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .team-photo-full {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
+        object-position: center top;
     }
 
     .team-body {
