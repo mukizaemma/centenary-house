@@ -422,17 +422,17 @@
 
     .team-photo-wrap {
         width: 100%;
-        height: 210px;
+        height: 280px;
         border-radius: 12px;
         overflow: hidden;
-        background: #ececec;
+        background: #f8fafc;
         border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .team-photo-full {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
     }
 
     .team-body {
