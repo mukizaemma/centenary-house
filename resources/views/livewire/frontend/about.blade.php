@@ -4,6 +4,11 @@
         <div class="about-page">
             <div class="about-page__inner">
             @if($settings)
+                @php
+                    $aboutDescPlain = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($settings->about_description ?? ''))));
+                    $aboutHistPlain = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($settings->about_history ?? ''))));
+                    $showAboutHistory = $settings->about_history && $aboutHistPlain !== '' && $aboutHistPlain !== $aboutDescPlain;
+                @endphp
                 {{-- Intro: about text --}}
                 <section class="about-intro">
                     <div class="about-intro__surface">
@@ -17,7 +22,7 @@
                                     {!! $settings->about_description !!}
                                 </div>
                             @endif
-                            @if($settings->about_history)
+                            @if($showAboutHistory)
                                 <div class="about-paragraph">
                                     {!! $settings->about_history !!}
                                 </div>
